@@ -1,7 +1,8 @@
 # Physics 1 Practice Problem Solver & Derivation Engine
 
-An educational tool that solves AP / High-School Physics 1 problems and
-**shows its work** — every step of the algebra, not just the final number.
+An educational tool that solves AP / High-School Physics 1 problems 
+<img width="741" height="759" alt="image" src="https://github.com/user-attachments/assets/afdb7ba6-acb9-45fc-bc03-ec3a197aedb0" />
+
 
 The system is a fully decoupled full-stack app:
 
@@ -9,10 +10,6 @@ The system is a fully decoupled full-stack app:
 |--------------|--------------------------------------|--------------|-------------------------|
 | Backend API  | Python · FastAPI · SymPy             | `backend/`   | Render (Blueprint)      |
 | Frontend UI  | Native HTML / CSS / JS · KaTeX       | `frontend/`  | GitHub Pages (Actions)  |
-
-**Live (after deploy):**
-- Frontend → `https://mustafarehman436-stack.github.io/physics-solver/`
-- Backend  → `https://physics-solver-api.onrender.com`
 
 ---
 
