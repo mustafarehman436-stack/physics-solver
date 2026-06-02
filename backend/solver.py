@@ -55,6 +55,16 @@ def _fmt(expr: sp.Expr) -> str:
     return sp.sstr(expr)
 
 
+def _as_sym_number(value: float) -> sp.Expr:
+    """
+    Wrap a Python float into the tidiest SymPy number.
+    Whole-valued floats become Integer (so '3' renders as '3', not '3.0').
+    """
+    if float(value).is_integer():
+        return sp.Integer(int(value))
+    return sp.Float(value)
+
+
 # ---------------------------------------------------------------------------
 # Core: solve a single equation for one target, generating steps
 # ---------------------------------------------------------------------------
@@ -95,17 +105,25 @@ def _solve_one(
         sp.latex(rearranged),
     ))
 
-    # 3) Substitute known numerical values.
-    substituted = solved_expr.subs(known_values)
-    sub_eq = sp.Eq(target_sym, substituted, evaluate=False)
+    # 3) Substitute known numerical values WITHOUT simplifying, so the step
+    #    reads like a textbook substitution:  d = 3*(9.8*3 + 2*0)/2
+    #    rather than the already-collapsed  d = 44.1.
+    subs_map = {
+        sym: _as_sym_number(val)
+        for sym, val in known_values.items()
+        if sym in solved_expr.free_symbols
+    }
+    with sp.evaluate(False):
+        literal = solved_expr.subs(subs_map)
+    sub_eq = sp.Eq(target_sym, literal, evaluate=False)
     steps.append(_step(
         "substitute",
         f"Substitute knowns:  {_fmt(sub_eq)}",
         sp.latex(sub_eq),
     ))
 
-    # 4) Evaluate to a float.
-    numeric = float(sp.N(substituted))
+    # 4) Evaluate to a float (uses the normal, fully-simplified substitution).
+    numeric = float(sp.N(solved_expr.subs(known_values)))
     result_eq = sp.Eq(target_sym, sp.Float(numeric, 6), evaluate=False)
     steps.append(_step(
         "result",
