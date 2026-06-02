@@ -5,10 +5,14 @@ An educational tool that solves AP / High-School Physics 1 problems and
 
 The system is a fully decoupled full-stack app:
 
-| Layer        | Stack                                | Folder       |
-|--------------|--------------------------------------|--------------|
-| Backend API  | Python · FastAPI · SymPy             | `backend/`   |
-| Frontend UI  | Native HTML / CSS / JS · KaTeX       | `frontend/`  |
+| Layer        | Stack                                | Folder       | Deploy target           |
+|--------------|--------------------------------------|--------------|-------------------------|
+| Backend API  | Python · FastAPI · SymPy             | `backend/`   | Render (Blueprint)      |
+| Frontend UI  | Native HTML / CSS / JS · KaTeX       | `frontend/`  | GitHub Pages (Actions)  |
+
+**Live (after deploy):**
+- Frontend → `https://mustafarehman436-stack.github.io/physics-solver/`
+- Backend  → `https://physics-solver-api.onrender.com`
 
 ---
 
@@ -114,6 +118,36 @@ The footer shows whether the backend is reachable. Pick a preset
   the API rejects nonsense like `F = 10 m/s` before the solver runs.
 - **Extensible.** Add an equation by appending to `equations.py` — the
   solver discovers it automatically via free-symbol matching.
+
+---
+
+## Deployment
+
+The repo ships with both deploy configs already wired up.
+
+### Backend → Render (free tier)
+1. Sign in at <https://render.com> with your GitHub account.
+2. **New +** → **Blueprint** → pick this repo.
+3. Render reads `render.yaml`, provisions `physics-solver-api`, builds, deploys.
+4. Wait until the service shows **Live** (first build is ~3 minutes).
+
+Free instances sleep after ~15 min of inactivity; the first wake takes
+30–60 seconds. Subsequent requests are instant.
+
+### Frontend → GitHub Pages
+1. Repo **Settings** → **Pages** → *Build and deployment* → **Source: GitHub Actions**.
+2. The workflow in `.github/workflows/deploy-frontend.yml` runs on every push
+   to `main` that touches `frontend/`. First deploy takes ~1 minute.
+
+### Pointing the frontend at the backend
+The frontend auto-detects which backend to use:
+- On `localhost` → `http://localhost:8000`
+- On `*.github.io` → the Render URL hard-coded in `frontend/js/api.js`
+
+To override at runtime (e.g. preview a different backend without redeploying):
+`https://...github.io/physics-solver/?api=https://your-other-host`
+
+The override persists in `localStorage`.
 
 ---
 

@@ -1,9 +1,35 @@
 /**
  * Thin fetch wrapper for the Physics 1 derivation backend.
  * Keeps the HTTP details in one place so the UI never touches `fetch`.
+ *
+ * API_BASE resolution order (first match wins):
+ *   1. ?api=<url>           — query string override (handy for testing)
+ *   2. localStorage         — persisted override (set once, sticks)
+ *   3. localhost default    — when running on localhost / 127.0.0.1
+ *   4. production default   — the deployed Render URL
  */
 
-export const API_BASE = "http://localhost:8000";
+const DEFAULT_LOCAL  = "http://localhost:8000";
+const DEFAULT_REMOTE = "https://physics-solver-api.onrender.com";
+
+function resolveApiBase() {
+  const params = new URLSearchParams(window.location.search);
+  const fromQuery = params.get("api");
+  if (fromQuery) {
+    try { localStorage.setItem("physics_api_base", fromQuery); } catch {}
+    return fromQuery;
+  }
+  try {
+    const stored = localStorage.getItem("physics_api_base");
+    if (stored) return stored;
+  } catch {}
+
+  const host = window.location.hostname;
+  const isLocal = host === "localhost" || host === "127.0.0.1" || host === "";
+  return isLocal ? DEFAULT_LOCAL : DEFAULT_REMOTE;
+}
+
+export const API_BASE = resolveApiBase();
 
 /**
  * POST /api/solve

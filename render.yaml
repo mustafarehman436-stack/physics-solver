@@ -1,0 +1,19 @@
+# Render Blueprint — one-click deploy for the Physics 1 backend.
+#
+# To deploy:
+#   1. Push this repo to GitHub (already done).
+#   2. In Render, click "New +" -> "Blueprint" -> select this repo.
+#   3. Render reads this file and provisions the service automatically.
+#
+# Free-tier note: the instance sleeps after ~15 minutes of inactivity.
+# The first request after sleep takes 30-60 seconds to wake.
+
+services:
+  - type: web
+    name: physics-solver-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
